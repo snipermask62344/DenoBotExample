@@ -25,6 +25,11 @@ bot.command("start", async (ctx) => {
     }
 });
 
+// Обработайте команды для оценки встречи
+bot.command("check_meeting", async (ctx) => {
+    await ctx.reply("Как вы оцениваете встречу?", { reply_markup: evaluationKeyboard });
+});
+
 // Обработайте сообщения с интересами и городом.
 bot.on("message", async (ctx) => {
     const userId = ctx.from.id;
@@ -58,9 +63,7 @@ bot.on("message", async (ctx) => {
 // Функция для сравнения с другими пользователями
 async function compareWithOtherUsers(ctx, userId, userData) {
     const matches = Array.from(users.entries())
-        .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);
-
-    if (matches.length > 0) {
+        .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);    if (matches.length > 0) {
         const matchedUsernames = matches.map(([id, data]) => data.username).filter(Boolean).join(', ');
         await ctx.reply("У вас есть совпадения с: " + matchedUsernames + ". Хотите встретиться?");
 
@@ -87,7 +90,7 @@ bot.callbackQuery(/evaluate_/, async (ctx) => {
     await ctx.answerCallbackQuery();
     const userFeedback = ctx.callbackQuery.data === "evaluate_yes" ? "Хорошо" : "Плохо";
     
-    await ctx.reply("Вы оценили встречу как: " + userFeedback + " Спасибо за ваш отзыв!");
+    await ctx.reply("Вы оценили встречу как: " + userFeedback + ". Спасибо за ваш отзыв!");
 });
 
 // Функция для обработки ошибок
@@ -102,10 +105,6 @@ function handleError(error: any) {
         console.error("Ошибка:", error);
     }
 }
-
-
-
-
 
 
 
