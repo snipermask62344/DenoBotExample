@@ -44,8 +44,15 @@ bot.on("message", async (ctx) => {
                 .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);
 
             if (matches.length > 0) {
-                const matchedUsernames = matches.map(([id]) => "Пользователь " + id).join(', ');
+                     const matchedUsernames = matches.map(([id]) => "Пользователь" +id).join(', ');
+                // Уведомляем обоих пользователей о совпадениях
                 await ctx.reply("У вас есть совпадения с: " + matchedUsernames + ". Хотите встретиться?");
+
+                // Уведомляем совпавших пользователей
+                for (const [id] of matches) {
+                    const matchedCtx = await bot.api.getChat(id);
+                    await bot.api.sendMessage(matchedCtx.id, "С вами совпадает пользователь: "+userId+" Хотите встретиться?");
+                }
             } else {
                 await ctx.reply("Совпадений не найдено.");
             }
