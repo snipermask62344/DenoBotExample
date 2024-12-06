@@ -7,12 +7,12 @@ const app = express();
 const handleUpdate = webhookCallback(bot, 'express');
 
 app.use(express.json());
+await bot.api.setWebhook("https://snipermask6-denobotexam-39-sb6twkvwmpc5.deno.dev/")
 
-const web_hook_path = `/${bot.token}/webhook`;
 
-app.post(web_hook_path, async (req: Request, res: Response) => {
+app.post("/", async (req: Request, res: Response) => {
     console.log('g')
-    if (req.method === "POST" && req.path === web_hook_path) {
+    if (req.method === "POST") {
         try {
             await handleUpdate(req, res); // Передаем запрос и ответ в обработчик обновлений
         } catch (err) {
