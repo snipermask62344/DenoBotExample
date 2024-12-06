@@ -92,7 +92,7 @@ bot.callbackQuery(/evaluate_/, async (ctx) => {
     await ctx.answerCallbackQuery();
     const userFeedback = ctx.callbackQuery.data === "evaluate_yes" ? "Хорошо" : "Плохо";
     
-    await ctx.reply("Вы оценили встречу как: "+userFeedback" Спасибо за ваш отзыв!");
+    await ctx.reply("Вы оценили встречу как: "+userFeedback+" Спасибо за ваш отзыв!");
 });
 
 // Функция для обработки ошибок
