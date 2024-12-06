@@ -49,10 +49,7 @@ bot.on("message", async (ctx) => {
 
             // Сравниваем с другими пользователями
             compareWithOtherUsers(ctx, userId, userData);
-        } else {
-            // Пользователь уже ввел как интересы, так и город
-            await ctx.reply("Вы уже ввели свои интересы и город. Хотите обновить их? (да/нет)");
-        }
+        } 
     } catch (error) {
         handleError(error);
     }
