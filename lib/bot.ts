@@ -1,9 +1,10 @@
+
 import { Bot, InlineKeyboard, GrammyError } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
 
 // Хранилище пользователей и их интересов
-const users = new Map<number, { interests: string; city: string }>();
+const users = new Map<number, { interests: string; city: string, interestsTime: number, cityTime: number }>();
 
 // Клавиатура для команды /about
 const keyboard = new InlineKeyboard()
@@ -26,7 +27,7 @@ bot.on("message", async (ctx) => {
     // Сохраняем интересы и город пользователя
     let userData = users.get(userId);
     if (!userData) {
-        userData = { interests: '', city: '' };
+        userData = { interests: '', city: '', interestsTime: 0, cityTime: 0 };
         users.set(userId, userData);
     }
 
@@ -34,33 +35,41 @@ bot.on("message", async (ctx) => {
         // Если интересы еще не были введены
         if (!userData.interests) {
             userData.interests = ctx.message.text;
+            userData.interestsTime = Date.now(); // Запоминаем время
             await ctx.reply("Вы написали интересы: " + userData.interests + ". Теперь напишите свой город.");
         } else if (!userData.city) {
             userData.city = ctx.message.text;
+            userData.cityTime = Date.now(); // Запоминаем время
             await ctx.reply("Вы из города: " + userData.city);
 
             // Сравниваем с другими пользователями
-            const matches = Array.from(users.entries())
-                .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);
-
-            if (matches.length > 0) {
-                     const matchedUsernames = matches.map(([id]) => "Пользователь" +id).join(', ');
-                // Уведомляем обоих пользователей о совпадениях
-                await ctx.reply("У вас есть совпадения с: " + matchedUsernames + ". Хотите встретиться?");
-
-                // Уведомляем совпавших пользователей
-                for (const [id] of matches) {
-                    const matchedCtx = await bot.api.getChat(id);
-                    await bot.api.sendMessage(matchedCtx.id, "С вами совпадает пользователь: "+userId+" Хотите встретиться?");
-                }
-            } else {
-                await ctx.reply("Совпадений не найдено.");
-            }
+            compareWithOtherUsers(ctx, userId, userData);
+        } else {
+            // Пользователь уже ввел как интересы, так и город
+            await ctx.reply("Вы уже ввели свои интересы и город. Хотите обновить их? (да/нет)");
         }
     } catch (error) {
-        handleError(error);
+ handleError(error);
     }
 });
+
+// Функция для сравнения с другими пользователями
+async function compareWithOtherUsers(ctx, userId, userData) {
+    const matches = Array.from(users.entries())
+        .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);
+
+    if (matches.length > 0) {
+        const matchedUsernames = matches.map(([id]) => "Пользователь " + id).join(', ');
+        await ctx.reply("У вас есть совпадения с: " + matchedUsernames + ". Хотите встретиться?");
+
+        // Уведомляем совпавших пользователей
+        for (const [id] of matches) {
+            await bot.api.sendMessage(id, "С вами совпадает пользователь: " + userId + ". Хотите встретиться?");
+        }
+    } else {
+        await ctx.reply("Совпадений не найдено.");
+    }
+}
 
 // Обработайте команду /about
 bot.callbackQuery("/about", async (ctx) => {
@@ -80,6 +89,7 @@ function handleError(error: any) {
         console.error("Ошибка:", error);
     }
 }
+
 
 
 
