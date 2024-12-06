@@ -1,4 +1,6 @@
+import { webhookCallback } from "grammy"
 import { bot } from "./lib/bot.ts"
+
 import express from "express"
 
 let app = express() // Создал приложение express
