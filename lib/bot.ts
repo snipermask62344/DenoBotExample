@@ -1,7 +1,6 @@
 
 import { Bot, InlineKeyboard, GrammyError } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
-import { readJson, writeJson } from "https://deno.land/x/deno_json@v1.0.0/mod.ts";
-import { ensureFile } from "https://deno.land/std/fs/mod.ts";
+import { ensureFile, readFileStr, writeFileStr } from "https://deno.land/std/fs/mod.ts";
 
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
 
@@ -12,16 +11,21 @@ const users = new Map<number, { username: string; interests: string; city: strin
 // Загрузка данных пользователей из JSON файла
 async function loadUsers() {
     await ensureFile(usersFilePath);
-    const data = await readJson(usersFilePath).catch(() => ({}));
-    for (const userId in data) {
-        users.set(Number(userId), data[userId]);
+    try {
+        const data = await readFileStr(usersFilePath);
+        const json = JSON.parse(data);
+        for (const userId in json) {
+            users.set(Number(userId), json[userId]);
+        }
+    } catch (error) {
+        console.error("Ошибка при загрузке пользователей:", error);
     }
 }
 
 // Сохранение данных пользователей в JSON файл
 async function saveUsers() {
     const data = Object.fromEntries(users);
-    await writeJson(usersFilePath, data, { spaces: 2 });
+    await writeFileStr(usersFilePath, JSON.stringify(data, null, 2));
 }
 
 // Клавиатура для команды /about
@@ -64,7 +68,8 @@ bot.on("message", async (ctx) => {
         // Если интересы еще не были введены
         if (!userData.interests) {
             userData.interests = ctx.message.text;
-            await ctx.reply("Вы написали интересы: " + userData.interests + ". Теперь напишите свой город.");
+            await ctx.reply("Вы написали интере
+сы: " + userData.interests + ". Теперь напишите свой город.");
         } else if (!userData.city) {
             userData.city = ctx.message.text;
             userData.cityTime = Date.now(); // Запоминаем время
