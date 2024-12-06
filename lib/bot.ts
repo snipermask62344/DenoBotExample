@@ -4,7 +4,7 @@ import { Bot, InlineKeyboard, GrammyError } from "https://deno.land/x/grammy@v1.
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
 
 // Хранилище пользователей и их интересов
-const users = new Map<number, { interests: string; city: string, interestsTime: number, cityTime: number }>();
+const users = new Map<number, { username: string; interests: string; city: string; interestsTime: number; cityTime: number }>();
 
 // Клавиатура для команды /about
 const keyboard = new InlineKeyboard()
@@ -23,11 +23,12 @@ bot.command("start", async (ctx) => {
 // Обработайте сообщения с интересами и городом.
 bot.on("message", async (ctx) => {
     const userId = ctx.from.id;
+    const username = ctx.from.username ? "@" + ctx.from.username : "неизвестный пользователь"; // Имя пользователя
 
     // Сохраняем интересы и город пользователя
     let userData = users.get(userId);
     if (!userData) {
-        userData = { interests: '', city: '', interestsTime: 0, cityTime: 0 };
+        userData = { username, interests: '', city: '', interestsTime: 0, cityTime: 0 };
         users.set(userId, userData);
     }
 
@@ -49,7 +50,7 @@ bot.on("message", async (ctx) => {
             await ctx.reply("Вы уже ввели свои интересы и город. Хотите обновить их? (да/нет)");
         }
     } catch (error) {
- handleError(error);
+        handleError(error);
     }
 });
 
@@ -59,12 +60,13 @@ async function compareWithOtherUsers(ctx, userId, userData) {
         .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);
 
     if (matches.length > 0) {
-        const matchedUsernames = matches.map(([id]) => "Пользователь " + id).join(', ');
+        const matchedUsernames = matches.map(([id, data]) => data.username).filter(Boolean).join(', ');
         await ctx.reply("У вас есть совпадения с: " + matchedUsernames + ". Хотите встретиться?");
 
         // Уведомляем совпавших пользователей
         for (const [id] of matches) {
-            await bot.api.sendMessage(id, "С вами совпадает пользователь: " + userId + ". Хотите встретиться?");
+            const matchedUsername = users.get(id)?.username || "неизвестный пользователь";
+            await bot.api.sendMessage(id, "С вами совпадает пользователь: " + userData.username + ". Хотите встретиться?");
         }
     } else {
         await ctx.reply("Совпадений не найдено.");
@@ -90,12 +92,7 @@ function handleError(error: any) {
     }
 }
 
-
-
-
-
-
-
+bot.start();
 
 
 
