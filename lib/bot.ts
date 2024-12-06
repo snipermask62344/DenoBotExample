@@ -1,10 +1,28 @@
 
 import { Bot, InlineKeyboard, GrammyError } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
+import { readJson, writeJson } from "https://deno.land/x/deno_json@v1.0.0/mod.ts";
+import { ensureFile } from "https://deno.land/std/fs/mod.ts";
 
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
 
-// Хранилище пользователей и их интересов
+// Хранилище пользователей
+const usersFilePath = "./users.json";
 const users = new Map<number, { username: string; interests: string; city: string; cityTime: number }>();
+
+// Загрузка данных пользователей из JSON файла
+async function loadUsers() {
+    await ensureFile(usersFilePath);
+    const data = await readJson(usersFilePath).catch(() => ({}));
+    for (const userId in data) {
+        users.set(Number(userId), data[userId]);
+    }
+}
+
+// Сохранение данных пользователей в JSON файл
+async function saveUsers() {
+    const data = Object.fromEntries(users);
+    await writeJson(usersFilePath, data, { spaces: 2 });
+}
 
 // Клавиатура для команды /about
 const keyboard = new InlineKeyboard()
@@ -53,7 +71,8 @@ bot.on("message", async (ctx) => {
             await ctx.reply("Вы из города: " + userData.city);
 
             // Сравниваем с другими пользователями
-            compareWithOtherUsers(ctx, userId, userData);
+            await compareWithOtherUsers(ctx, userId, userData);
+            await saveUsers(); // сохраняем данные после обновления
         } 
     } catch (error) {
         handleError(error);
@@ -63,7 +82,9 @@ bot.on("message", async (ctx) => {
 // Функция для сравнения с другими пользователями
 async function compareWithOtherUsers(ctx, userId, userData) {
     const matches = Array.from(users.entries())
-        .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);    if (matches.length > 0) {
+        .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);    
+
+    if (matches.length > 0) {
         const matchedUsernames = matches.map(([id, data]) => data.username).filter(Boolean).join(', ');
         await ctx.reply("У вас есть совпадения с: " + matchedUsernames + ". Хотите встретиться?");
 
@@ -71,11 +92,11 @@ async function compareWithOtherUsers(ctx, userId, userData) {
         for (const [id] of matches) {
             const matchedUsername = users.get(id)?.username || "неизвестный пользователь";
             await bot.api.sendMessage(
-                id,  "С вами совпадает пользователь: " + userData.username + " Хотите встретиться? Выберите место и время встречи в личных сообщениях."
+                id, "С вами совпадает пользователь: " + userData.username + " Хотите встретиться? Выберите место и время встречи в личных сообщениях."
             );
         }
     } else {
-        await ctx.reply("Совпадений не найдено.");
+        await ctx.reply("Совпадений не найдено. Ваш ник: " + userData.username);
     }
 }
 
@@ -105,6 +126,11 @@ function handleError(error: any) {
         console.error("Ошибка:", error);
     }
 }
+
+// Загрузка данных пользователей при старте бота
+await loadUsers();
+
+
 
 
 
