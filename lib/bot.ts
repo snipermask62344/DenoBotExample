@@ -32,7 +32,7 @@ bot.on("message", async (ctx) => {
         await ctx.reply("Вы написали интересы: "+userData.interests+" Теперь напишите свой город.");
     } else if (!userData.city) {
         userData.city = ctx.message.text;
-        await ctx.reply("Вы из города: "userData.city+"");
+        await ctx.reply("Вы из города: "+userData.city+"");
 
         // Сравниваем с другими пользователями
         const matches = Array.from(users.entries())
