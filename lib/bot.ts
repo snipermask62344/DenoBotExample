@@ -14,7 +14,7 @@ export const bot = new Bot("8107609652:AAGXOiJC4h315NTVpMOIsYhp-hwhxvrca2M"); //
 // Обработайте команду /start.
 bot.command(
     "start",
-    (ctx) => ctx.reply("Добро пожаловать. Запущен и работает!",{ reply_markup: keyboard }),
+    async (ctx) => await ctx.reply("Добро пожаловать. Запущен и работает!",{ reply_markup: keyboard }),
 );
 
 // Обработайте другие сообщения.
