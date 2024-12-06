@@ -69,7 +69,7 @@ bot.on("message", async (ctx) => {
         if (!userData.interests) {
             userData.interests = ctx.message.text;
             await ctx.reply("Вы написали интере
-сы: " + userData.interests + ". Теперь напишите свой город.");
+сы: " + userData.interests + " Теперь напишите свой город.");
         } else if (!userData.city) {
             userData.city = ctx.message.text;
             userData.cityTime = Date.now(); // Запоминаем время
