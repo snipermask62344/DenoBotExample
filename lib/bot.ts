@@ -1,4 +1,3 @@
-
 import { Bot, InlineKeyboard, GrammyError } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
@@ -66,7 +65,10 @@ async function compareWithOtherUsers(ctx, userId, userData) {
         // Уведомляем совпавших пользователей
         for (const [id] of matches) {
             const matchedUsername = users.get(id)?.username || "неизвестный пользователь";
-            await bot.api.sendMessage(id, "С вами совпадает пользователь: " + userData.username + ". Хотите встретиться?");
+            await bot.api.sendMessage(
+                id,
+                `С вами совпадает пользователь: ${userData.username}. Хотите встретиться? Выберите место и время встречи в личных сообщениях.`
+            );
         }
     } else {
         await ctx.reply("Совпадений не найдено.");
@@ -91,6 +93,8 @@ function handleError(error: any) {
         console.error("Ошибка:", error);
     }
 }
+
+
 
 
 
