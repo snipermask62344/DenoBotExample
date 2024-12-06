@@ -19,6 +19,7 @@ app.use(express.json())
 
 // использую метод post, т.к телеграмм отправляет только такие
 app.post("/", async (req, res) => {
+    сonsole.log("п")
     try {
         await handler(req, res) //та самая обработка
     } catch (err) {
