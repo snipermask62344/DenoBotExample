@@ -64,7 +64,7 @@ async function compareWithOtherUsers(ctx, userId, userData) {
     const matches = Array.from(users.entries())
         .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);
 
-    if (matches.length &gt; 0) {
+    if (matches.length > 0) {
         const matchedUsernames = matches.map(([id, data]) => data.username).filter(Boolean).join(', ');
         await ctx.reply("У вас есть совпадения с: " + matchedUsernames + ". Хотите встретиться?");
 
