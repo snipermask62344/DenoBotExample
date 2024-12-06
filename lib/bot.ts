@@ -2,6 +2,12 @@
 import { Bot, InlineKeyboard, GrammyError } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 import { ensureFile, readFileStr, writeFileStr } from "https://deno.land/std/fs/mod.ts";
 
+import { readTextFile } from "https://deno.land/std/fs/mod.ts";
+
+
+const data = await readTextFile("path/to/your/file.txt");
+
+
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
 
 // Хранилище пользователей
