@@ -29,10 +29,10 @@ bot.on("message", async (ctx) => {
     // Если интересы еще не были введены
     if (!userData.interests) {
         userData.interests = ctx.message.text;
-        await ctx.reply(Вы написали интересы: ${userData.interests}. Теперь напишите свой город.);
+        await ctx.reply("Вы написали интересы: "+${userData.interests}.+" Теперь напишите свой город.");
     } else if (!userData.city) {
         userData.city = ctx.message.text;
-        await ctx.reply(Вы из города: ${userData.city}.);
+        await ctx.reply("Вы из города: "+${userData.city}.+"");
 
         // Сравниваем с другими пользователями
         const matches = Array.from(users.entries())
@@ -40,7 +40,7 @@ bot.on("message", async (ctx) => {
 
         if (matches.length > 0) {
             const matchedUsernames = matches.map(([id]) => Пользователь ${id}).join(', ');
-            await ctx.reply(У вас есть совпадения с: ${matchedUsernames}. Хотите встретиться?);
+            await ctx.reply("У вас есть совпадения с: "+${matchedUsernames}.+" Хотите встретиться?");
         } else {
             await ctx.reply("Совпадений не найдено.");
         }
