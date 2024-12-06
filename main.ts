@@ -11,6 +11,7 @@ app.use(express.json());
 const web_hook_path = `/${bot.token}/webhook`;
 
 app.post(web_hook_path, async (req: Request, res: Response) => {
+    console.log('g')
     if (req.method === "POST" && req.path === web_hook_path) {
         try {
             await handleUpdate(req, res); // Передаем запрос и ответ в обработчик обновлений
