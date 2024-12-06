@@ -39,7 +39,7 @@ bot.on("message", async (ctx) => {
             .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);
 
         if (matches.length > 0) {
-            const matchedUsernames = matches.map(([id]) => Пользователь ${id}).join(', ');
+            const matchedUsernames = matches.map(([id]) => "Пользователь" +id).join(', ');
             await ctx.reply("У вас есть совпадения с: "+matchedUsernames+" Хотите встретиться?");
         } else {
             await ctx.reply("Совпадений не найдено.");
