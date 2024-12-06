@@ -4,7 +4,7 @@ import { Bot, InlineKeyboard, GrammyError } from "https://deno.land/x/grammy@v1.
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
 
 // Хранилище пользователей и их интересов
-const users = new Map<number, { username: string; interests: string; city: string; interestsTime: number; cityTime: number }>();
+const users = new Map<number, { username: string; interests: string; city: string; cityTime: number }>();
 
 // Клавиатура для команды /about
 const keyboard = new InlineKeyboard()
@@ -33,7 +33,7 @@ bot.on("message", async (ctx) => {
     // Сохраняем интересы и город пользователя
     let userData = users.get(userId);
     if (!userData) {
-        userData = { username, interests: '', city: '', interestsTime: 0, cityTime: 0 };
+        userData = { username, interests: '', city: '', cityTime: 0 };
         users.set(userId, userData);
     }
 
@@ -41,7 +41,6 @@ bot.on("message", async (ctx) => {
         // Если интересы еще не были введены
         if (!userData.interests) {
             userData.interests = ctx.message.text;
-            userData.interestsTime = Date.now(); // Запоминаем время
             await ctx.reply("Вы написали интересы: " + userData.interests + ". Теперь напишите свой город.");
         } else if (!userData.city) {
             userData.city = ctx.message.text;
@@ -72,8 +71,7 @@ async function compareWithOtherUsers(ctx, userId, userData) {
         for (const [id] of matches) {
             const matchedUsername = users.get(id)?.username || "неизвестный пользователь";
             await bot.api.sendMessage(
-                id,
-                "С вами совпадает пользователь: "+userData.username+" Хотите встретиться? Выберите место и время встречи в личных сообщениях."
+                id,  "С вами совпадает пользователь: " + userData.username + " Хотите встретиться? Выберите место и время встречи в личных сообщениях."
             );
         }
     } else {
@@ -92,7 +90,7 @@ bot.callbackQuery(/evaluate_/, async (ctx) => {
     await ctx.answerCallbackQuery();
     const userFeedback = ctx.callbackQuery.data === "evaluate_yes" ? "Хорошо" : "Плохо";
     
-    await ctx.reply("Вы оценили встречу как: "+userFeedback+" Спасибо за ваш отзыв!");
+    await ctx.reply("Вы оценили встречу как: " + userFeedback + " Спасибо за ваш отзыв!");
 });
 
 // Функция для обработки ошибок
@@ -108,12 +106,8 @@ function handleError(error: any) {
     }
 }
 
-// Команда для проверки встречи и запроса оценки
-bot.command("check_meeting", async (ctx) => {
-    const userId = ctx.from.id;
-    // Если пользователь имеет совпадения, отправляем сообщение
-    await ctx.reply("Состоялась ли встреча? Пожалуйста, нажмите на кнопку, чтобы оценить встречу.", { reply_markup: evaluationKeyboard });
-});
+
+
 
 
 
