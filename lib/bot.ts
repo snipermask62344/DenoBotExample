@@ -68,8 +68,10 @@ bot.on("message", async (ctx) => {
         // Если интересы еще не были введены
         if (!userData.interests) {
             userData.interests = ctx.message.text;
-            await ctx.reply("Вы написали интере
-сы: " + userData.interests + " Теперь напишите свой город.");
+  
+await ctx.reply("Вы написали интересы: " + userData.interests + ". Теперь напишите свой город.");
+
+
         } else if (!userData.city) {
             userData.city = ctx.message.text;
             userData.cityTime = Date.now(); // Запоминаем время
