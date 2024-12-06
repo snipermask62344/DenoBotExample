@@ -92,7 +92,8 @@ function handleError(error: any) {
     }
 }
 
-bot.start();
+
+
 
 
 
