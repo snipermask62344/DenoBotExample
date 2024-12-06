@@ -1,38 +1,10 @@
 
 import { Bot, InlineKeyboard, GrammyError } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
-import { ensureFile, readFileStr, writeFileStr } from "https://deno.land/std/fs/mod.ts";
-
-import { readTextFile } from "https://deno.land/std/fs/mod.ts";
-
-
-const data = await readTextFile("path/to/your/file.txt");
-
 
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
 
-// Хранилище пользователей
-const usersFilePath = "./users.json";
+// Хранилище пользователей и их интересов
 const users = new Map<number, { username: string; interests: string; city: string; cityTime: number }>();
-
-// Загрузка данных пользователей из JSON файла
-async function loadUsers() {
-    await ensureFile(usersFilePath);
-    try {
-        const data = await readFileStr(usersFilePath);
-        const json = JSON.parse(data);
-        for (const userId in json) {
-            users.set(Number(userId), json[userId]);
-        }
-    } catch (error) {
-        console.error("Ошибка при загрузке пользователей:", error);
-    }
-}
-
-// Сохранение данных пользователей в JSON файл
-async function saveUsers() {
-    const data = Object.fromEntries(users);
-    await writeFileStr(usersFilePath, JSON.stringify(data, null, 2));
-}
 
 // Клавиатура для команды /about
 const keyboard = new InlineKeyboard()
@@ -74,18 +46,14 @@ bot.on("message", async (ctx) => {
         // Если интересы еще не были введены
         if (!userData.interests) {
             userData.interests = ctx.message.text;
-  
-await ctx.reply("Вы написали интересы: " + userData.interests + ". Теперь напишите свой город.");
-
-
+            await ctx.reply("Вы написали интересы: " + userData.interests + ". Теперь напишите свой город.");
         } else if (!userData.city) {
             userData.city = ctx.message.text;
             userData.cityTime = Date.now(); // Запоминаем время
             await ctx.reply("Вы из города: " + userData.city);
 
             // Сравниваем с другими пользователями
-            await compareWithOtherUsers(ctx, userId, userData);
-            await saveUsers(); // сохраняем данные после обновления
+            compareWithOtherUsers(ctx, userId, userData);
         } 
     } catch (error) {
         handleError(error);
@@ -95,8 +63,7 @@ await ctx.reply("Вы написали интересы: " + userData.interests 
 // Функция для сравнения с другими пользователями
 async function compareWithOtherUsers(ctx, userId, userData) {
     const matches = Array.from(users.entries())
-        .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);    
-
+        .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);
     if (matches.length > 0) {
         const matchedUsernames = matches.map(([id, data]) => data.username).filter(Boolean).join(', ');
         await ctx.reply("У вас есть совпадения с: " + matchedUsernames + ". Хотите встретиться?");
@@ -105,11 +72,11 @@ async function compareWithOtherUsers(ctx, userId, userData) {
         for (const [id] of matches) {
             const matchedUsername = users.get(id)?.username || "неизвестный пользователь";
             await bot.api.sendMessage(
-                id, "С вами совпадает пользователь: " + userData.username + " Хотите встретиться? Выберите место и время встречи в личных сообщениях."
+                id,  "С вами совпадает пользователь: " + userData.username + " Хотите встретиться? Выберите место и время встречи в личных сообщениях."
             );
         }
     } else {
-        await ctx.reply("Совпадений не найдено. Ваш ник: " + userData.username);
+        await ctx.reply("Совпадений не найдено.");
     }
 }
 
@@ -140,8 +107,8 @@ function handleError(error: any) {
     }
 }
 
-// Загрузка данных пользователей при старте бота
-await loadUsers();
+
+
 
 
 
