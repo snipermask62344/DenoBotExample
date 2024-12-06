@@ -7,14 +7,7 @@ let app = express() // Создал приложение express
 const handler = webhookCallback(bot, "express") // Создаю обработчик событий. (Мог сделать на постоянной основе, но решил не мудрить и делать один запрос = одна обработка)
 
 // Создаю цикл, в котором будет подключение к ссылке, пока не буду уверен, что оно произошло
-while (true) {
-    try {
-        await bot.api.setWebhook("https://snipermask6-denobotexam-39.deno.dev/")
-        break
-    } catch (err) {
-        console.log(err)
-    }
-}
+await bot.api.setWebhook("https://snipermask6-denobotexam-39.deno.dev/")
 
 // использую на всех страницах приложения тип данных json
 app.use(express.json())
