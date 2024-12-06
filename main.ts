@@ -1,31 +1,32 @@
-import { webhookCallback } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
-import express, { Request, Response } from 'npm:express';
-import { bot } from "./lib/bot.ts";
+import { bot } from "./lib/bot.ts"
+import express from "express"
 
-const app = express();
+let app = express() // Создал приложение express
+const handler = webhookCallback(bot, "express") // Создаю обработчик событий. (Мог сделать на постоянной основе, но решил не мудрить и делать один запрос = одна обработка)
 
-const handleUpdate = webhookCallback(bot, 'express');
-
-app.use(express.json());
-await bot.api.setWebhook("https://snipermask6-denobotexam-39-sb6twkvwmpc5.deno.dev/")
-
-
-app.post("/", async (req: Request, res: Response) => {
-    console.log('g')
-    if (req.method === "POST") {
-        try {
-            await handleUpdate(req, res); // Передаем запрос и ответ в обработчик обновлений
-        } catch (err) {
-            console.error(err);
-            res.sendStatus(500); // Ответ с ошибкой
-        }
-    } else {
-        res.sendStatus(404); // Если путь не соответствует токену бота или метод не POST
+// Создаю цикл, в котором будет подключение к ссылке, пока не буду уверен, что оно произошло
+while (true) {
+    try {
+        await bot.api.setWebhook("https://snipermask6-denobotexam-39.deno.dev/")
+        break
+    } catch (err) {
+        console.log(err)
     }
-});
+}
 
-// Слушаем на порту 5000
-const PORT = 443;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// использую на всех страницах приложения тип данных json
+app.use(express.json())
+
+// использую метод post, т.к телеграмм отправляет только такие
+app.post("/", async (req, res) => {
+    try {
+        await handler(req, res) //та самая обработка
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+// прослушиваю 443 порт
+app.listen(443, () => {
+    console.log("Сервер запущен")
+})
