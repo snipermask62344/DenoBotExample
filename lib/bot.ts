@@ -77,6 +77,39 @@ bot.on("message", async (ctx) => {
         } 
     } catch (error) {
 
+        handleError(error);
+    }
+});
+
+// Функция для сравнения с другими пользователями
+async function compareWithOtherUsers(ctx, userId, userData) {
+    const matches = Array.from(users.entries())
+        .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);    
+
+    if (matches.length > 0) {
+        const matchedUsernames = matches.map(([id, data]) => data.username).filter(Boolean).join(', ');
+        await ctx.reply("У вас есть совпадения с: " + matchedUsernames + ". Хотите встретиться?");
+
+        for (const [id] of matches) {
+            const matchedUsername = users.get(id)?.username || "неизвестный пользователь";
+            await bot.api.sendMessage(
+                id, "С вами совпадает пользователь: " + userData.username + " Хотите встретиться? Выберите место и время встречи в личных сообщениях."
+            );
+        }
+    } else {
+        await ctx.reply("Совпадений не найдено. Ваш ник: " + userData.username);
+    }
+}
+
+// Обработка ошибок
+function handleError(error) {
+    console.error("Произошла ошибка:", error);
+}
+
+// Загрузите пользователей при старте бота
+await loadUsers();
+
+
 
 
 
