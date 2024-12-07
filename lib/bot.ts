@@ -19,7 +19,7 @@ const evaluationKeyboard = new InlineKeyboard()
 bot.command("start", async (ctx) => {
     try {
         await ctx.reply("Добро пожаловать. Запущен и работает!", { reply_markup: keyboard });
-        await ctx.reply("Пожалуйста, напишите свои интересы и город.");
+        await ctx.reply("Пожалуйста, напишите свои интересы.");
     } catch (error) {
         handleError(error);
     }
