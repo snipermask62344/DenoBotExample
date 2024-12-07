@@ -33,15 +33,18 @@ bot.command("help", async (ctx) => {
     await ctx.reply("Если у вас есть вопросы или нужна поддержка, вы можете обратиться в техподдержку по следующей ссылке: https://t.me/+iJvpq7lFfQ5jZTEy");
 });
 
+
 bot.command("reason", async (ctx) => {
     await ctx.reply("Пожалуйста, напишите причину, почему встреча не состоялась.");
 });
 
-bot.on("text", async (ctx) => {
+// Используйте listen() для обработки текстовых сообщений
+bot.on("message:text", async (ctx) => {
     const message = ctx.message.text;
-    
+
     await ctx.reply("Спасибо, ваша причина: " + message + " была получена.");
 });
+
 
 
 
