@@ -40,7 +40,7 @@ bot.command("reason", async (ctx) => {
 bot.on("text", async (ctx) => {
     const message = ctx.message.text;
     
-    await ctx.reply("Спасибо, ваша причина: " + message + " была получена.);
+    await ctx.reply("Спасибо, ваша причина: " + message:text + " была получена.);
 });
 
 
