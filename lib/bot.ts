@@ -35,7 +35,7 @@ bot.command("help", async (ctx) => {
 bot.command("reason", async (ctx) => {
     await ctx.reply("Пожалуйста, напишите причину, почему встреча не состоялась.");
 
-
+});
 
 bot.on("text", async (ctx) => {
     const message = ctx.message.text;
