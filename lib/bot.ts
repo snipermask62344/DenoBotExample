@@ -29,6 +29,10 @@ bot.command("start", async (ctx) => {
 bot.command("check_meeting", async (ctx) => {
     await ctx.reply("Как вы оцениваете встречу?", { reply_markup: evaluationKeyboard });
 });
+bot.command("help", async (ctx) => {
+    await ctx.reply("Если у вас есть вопросы или нужна поддержка, вы можете обратиться в техподдержку по следующей ссылке: https://t.me/+iJvpq7lFfQ5jZTEy");
+});
+
 
 // Обработайте сообщения с интересами и городом.
 bot.on("message", async (ctx) => {
