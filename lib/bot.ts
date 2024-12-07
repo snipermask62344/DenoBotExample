@@ -1,12 +1,7 @@
 
 import { Bot, InlineKeyboard, GrammyError } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 
-const botToken = Deno.env.get("BOT_TOKEN");
-if (!botToken) {
-    console.error("BOT_TOKEN не установлен.");
-    Deno.exit(1);
-}
-export const bot = new Bot(botToken);
+export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
 
 // Хранилище пользователей и их интересов
 const users = new Map<number, { username: string; interests: string; city: string; cityTime: number }>();
@@ -20,7 +15,7 @@ const evaluationKeyboard = new InlineKeyboard()
     .text("Хорошо", "evaluate_yes")
     .text("Плохо", "evaluate_no");
 
-// Обработайте команду /start
+// Обработайте команду /start.
 bot.command("start", async (ctx) => {
     try {
         await ctx.reply("Добро пожаловать. Запущен и работает!", { reply_markup: keyboard });
@@ -35,7 +30,7 @@ bot.command("check_meeting", async (ctx) => {
     await ctx.reply("Как вы оцениваете встречу?", { reply_markup: evaluationKeyboard });
 });
 
-// Обработайте сообщения с интересами и городом
+// Обработайте сообщения с интересами и городом.
 bot.on("message", async (ctx) => {
     const userId = ctx.from.id;
     const username = ctx.from.username ? "@" + ctx.from.username : "неизвестный пользователь"; // Имя пользователя
@@ -58,7 +53,7 @@ bot.on("message", async (ctx) => {
             await ctx.reply("Вы из города: " + userData.city);
 
             // Сравниваем с другими пользователями
-            await compareWithOtherUsers(ctx, userId, userData);
+            compareWithOtherUsers(ctx, userId, userData);
         } 
     } catch (error) {
         handleError(error);
@@ -67,8 +62,15 @@ bot.on("message", async (ctx) => {
 
 // Функция для сравнения с другими пользователями
 async function compareWithOtherUsers(ctx, userId, userData) {
+    const lowerCaseInterests = userData.interests.toLowerCase();
+    const lowerCaseCity = userData.city.toLowerCase();
+
     const matches = Array.from(users.entries())
-        .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);
+        .filter(([id, data]) => 
+            id !== userId &&
+            data.city.toLowerCase() === lowerCaseCity &&
+            data.interests.toLowerCase() === lowerCaseInterests
+        );
     
     if (matches.length > 0) {
         const matchedUsernames = matches.map(([id, data]) => data.username).filter(Boolean).join(', ');
@@ -78,7 +80,7 @@ async function compareWithOtherUsers(ctx, userId, userData) {
         for (const [id] of matches) {
             const matchedUsername = users.get(id)?.username || "неизвестный пользователь";
             await bot.api.sendMessage(
-                id, "С вами совпадает пользователь: " + userData.username + " Хотите встретиться? Выберите место и время встречи в личных сообщениях."
+                id, "С вами совпадает пользователь: " + userData.username + ". Хотите встретиться? Выберите место и время встречи в личных сообщениях."
             );
         }
     } else {
@@ -100,11 +102,18 @@ bot.callbackQuery(/evaluate_/, async (ctx) => {
     await ctx.reply("Вы оценили встречу как: " + userFeedback + ". Спасибо за ваш отзыв!");
 });
 
-// Обработчик ошибок
-function handleError(error) {
-    console.error("Произошла ошибка:", error);
+// Функция для обработки ошибок
+function handleError(error: any) {
+    if (error instanceof GrammyError) {
+        if (error.error_code === 403) {
+            console.log("Ошибка: Бот был заблокирован пользователем.");
+        } else {
+            console.error("Ошибка Grammy:", error);
+        }
+    } else {
+        console.error("Ошибка:", error);
+    }
 }
-
 
 
 
