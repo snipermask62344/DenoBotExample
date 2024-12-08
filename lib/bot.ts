@@ -34,16 +34,7 @@ bot.command("help", async (ctx) => {
 });
 
 
-bot.command("reason", async (ctx) => {
-    await ctx.reply("Пожалуйста, напишите причину, почему встреча не состоялась.");
-});
 
-// Используйте listen() для обработки текстовых сообщений
-bot.on("message:text", async (ctx) => {
-    const message = ctx.message.text;
-
-    await ctx.reply("Спасибо, ваша причина: " + message + " была получена.");
-});
 
 
 
